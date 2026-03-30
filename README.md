@@ -1,88 +1,67 @@
-# Inventory-Management-System
-Inventory Management System is a python based project that uses `tkinter` modules for Graphical User Interface(GUI)
+# Inventory Management System
 
+Desktop **Inventory Management System** built with Python, **Tkinter**, **SQLite**, and **Pillow** for images. The codebase is organized as a small application package under `app/`, with shared configuration in `config/`, an entry point `main.py`, and automated tests under `tests/`.
 
-### Overview
-This project includes 8 python scripts that demonstrate how to interact with a Graphical User Interface(GUI) using `tkinter`, manage images using `pil`, date/time using `datetime`, database using `sqlite3` and fetching files from system using `os` module. In this project, there are total 8 python scripts which are connected to each other. The eight python scripts are as follows:-
-1. `dashboard.py`
-2. `employee.py`
-3. `supplier.py`
-4. `product.py`
-5. `category.py`
-6. `sales.py`
-7. `create_db.py`
-8. `billing.py`
+## Project layout
 
-### 1. dashboard.py
-- This script is the dashboard of Inventory Management System containing buttons, images and labels and timing.
-- The screen shows the options for `Employee`, `Supplier`, `Category`, `Products` and `Sales` to perform CRUD operations.
-- This screen also updates timely as you perform operations on any of these Labels.
+- **`main.py`** — Starts the app: ensures the database exists, then opens the dashboard.
+- **`config/settings.py`** — Central paths: project root, `database/ims.db`, `bill/`, and `images/` (directories are created if missing).
+- **`config/database.py`** — `initialize_database()` creates required tables if they do not exist; `get_connection()` opens SQLite using the configured path.
+- **`app/dashboard.py`** — Main window (`IMS`): menu, stats, clock, and navigation to feature screens.
+- **`app/employee.py`**, **`supplier.py`**, **`category.py`**, **`product.py`**, **`sales.py`**, **`billing.py`** — Feature modules (each can still be run standalone for quick UI checks).
+- **`app/ui/`** — Reusable UI pieces: fonts/colors (`theme.py`), CRUD/search buttons (`buttons.py`), scrolled `Treeview` factory (`tables.py`), search `LabelFrame` helper (`search_frame.py`), and common window setup (`window.py`).
+- **`app/sql_helpers.py`** — Whitelisted column names and parameterized `LIKE` queries for employee and product search (reduces SQL injection risk from UI input).
+- **`tests/`** — **pytest** suite: unit, integration, and regression tests.
 
-![alt text](image.png)
+## How to run
 
-### 2. employee.py
-- This screen collects and shows the complete data regarding an `employee`.
-- Buttons are functionalised accordingly.
-- You can search an employee by its `email`, `name` or `contact`.
+1. Create and activate a virtual environment (recommended).
+2. Install dependencies:
 
-![alt text](image-1.png)
+   `pip install -r requirements.txt`
 
-### 3. supplier.py
-- This screen collects and shows the complete data regarding `suppliers`.
-- Buttons are functionalised accordingly.
-- You can search a particular supplier details by `invoice no`.
+3. Add optional assets under **`images/`** (e.g. `logo1.png`, `menu_im.png`, `side.png`, `cat2.jpg`, category images). The dashboard uses placeholders if files are missing so the app still starts.
+4. Launch the application:
 
-![alt text](image-2.png)
+   `python main.py`
 
-### 4. product.py
-- This screen collects and shows the complete data about the `product`.
-- It also ensures the `availability` of the product
-- Buttons are functionalised accordingly.
-- You can search a product by its `category`, `supplier` or `name`.
+The database file is created automatically under **`database/ims.db`** on first run. You no longer need to run a separate `create_db.py` script first.
 
-![alt text](image-3.png)
+## Running tests
 
-### 5. category.py
-- This screen collects and shows the information about the category of the product. LIKE:- If Product name is `IPhone` then its category is `Phone`.
-- This screen contains 2 buttons namely `add` and `delete`. These buttons are functionalised accordingly.
+From the project root:
 
-![alt text](image-4.png)
+`python -m pytest tests -v`
 
-### 6. sales.py
-- This screen stores and shows the bills by an `invoice no`.
-- Buttons are functionalised accordingly.
+The suite includes **at least three unit tests** (database initialization, connection behavior, SQL helper safety), **two integration scenarios** (multi-step employee lifecycle; category/supplier/product flow; plus bill directory behavior), and **regression tests** that pin fixes for fragile patterns (e.g. `StringVar` comparison bugs, parameterized search SQL).
 
-![alt text](image-5.png)
+## Maintenance coursework notes (refactoring and structure)
 
-### 7. creat_db.py
-- This is the database file for all the tables.
-- You have to run this file `first` before running the `dashboard.py` file otherwise it will throw an error.
+**Configuration and database.** All modules now use `get_connection()` and paths from `config.settings` instead of hard-coded `ims.db` or per-file `BASE_DIR` guesses. That removes duplicated path logic and keeps a single place to change where data and bills live. `initialize_database()` is invoked from `main.py` so first-time setup is automatic.
 
-### 8. billing.py
-- This screen contains all the billing part.
-- This screen contains information regarding the `products`, `customers`, `the products they are buying`, `billing structure`, `price of product`, `discout on the products`.
-- This screen also contains a `calculator` to calculate the total amount.
-- Buttons are functionalised accordingly.
+**UI deduplication.** Repeated patterns—standard CRUD window geometry, the green “Search” button, the Save/Update/Delete/Clear strip with the same colors, and every `Treeview` plus horizontal/vertical scrollbars—were extracted into `app/ui/`. Screens import these helpers so future style or behavior changes happen in one module instead of six copies.
 
-![alt text](image-6.png)
+**Code quality and naming.** Database connections are closed in `finally` blocks where appropriate; product validation now correctly uses `self.var_sup.get()` (and the same pattern for category) instead of comparing `StringVar` objects to strings, which was always false. Employee and product search use whitelisted column names and bound parameters instead of concatenating user text into SQL.
 
-#### Detailed Steps:
-1. Click on the `create_db.py` file first and run it.
-2. Click on the `dashboard.py` file and run it.
-3. Click on the `employee button` to add employees.
-4. Click on the `supplier button` to add suppliers.
-5. Click on the `products button` to add products.
-6. Now click on the `billing.py` file for billing.
-7. Now click on the `dashboard.py` file and run it.
-8. Click on the `sales` button to see your billing.
+**Billing and sales.** Bill files are written with `os.path.join(BILL_DIR, …)` and UTF-8 encoding. The cart grid only displays four columns, but each cart row still stores stock in memory; selecting a cart line resolves stock from `cart_list` so “In Stock” stays correct (avoiding an off-by-column bug with `row[4]` on the tree). Billing product search uses a parameterized `LIKE` query.
 
-### Pre-Requisites
-Ensure that you have the following Python Pakages installed in your PC:
-- `time`: `pip install time`
-- `pil`: `pip install pil`
-- `sqlite3`: `pip install sqlite3`
-- `os`: `pip install os`
+These changes are aimed at **software maintenance**: easier evolution, fewer duplicated UI blocks, safer queries, and tests that document expected behavior for future edits.
 
-### Configuration
-- Before running `dashboard.py`, make sure to run `create_db.py` file first and create a folder named `bill` and `images`.
-- In `images` folder save your images regarding this project and in `bill` folder bills will automatically be saved.
+## Original feature overview (unchanged behavior)
+
+The application still provides:
+
+- **Dashboard** — Totals for employees, suppliers, categories, products, and sales (bill `.txt` count), plus navigation.
+- **Employee** — CRUD and search by email, name, or contact.
+- **Supplier** — CRUD and search by invoice.
+- **Category** — Add/delete categories.
+- **Product** — CRUD with category and supplier dropdowns; search by category, supplier, or name.
+- **Sales** — List bill files and view contents by invoice.
+- **Billing** — Product picker, cart, calculator, discount, generate/save bill.
+
+## Prerequisites
+
+- Python 3.x  
+- `pip install -r requirements.txt` (includes **Pillow** and **pytest**)
+
+Standard library modules (`sqlite3`, `os`, `tkinter`, etc.) do not need separate installation.
