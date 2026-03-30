@@ -16,60 +16,34 @@ class categoryClass:
 
         self.var_cat_id = StringVar()
         self.var_name = StringVar()
+        # Manage Product Category label
+        Label(self.root, text="Manage Product Category", font=("goudy old style", 30), bg="#184a45", fg="white", bd=3, relief=RIDGE).pack(side="top", fill="x", padx=10, pady=20)
+        # Enter Category Name label
+        Label(self.root, text="Enter Category Name", font=("goudy old style", 30), bg=Theme.BG_WHITE).place(x=50, y=100)
+        # Category Name entry
+        Entry(self.root, textvariable=self.var_name, bg=Theme.BG_ENTRY, font=("goudy old style", 18)).place(x=50, y=170, width=300)
 
-        Label(
-            self.root,
-            text="Manage Product Category",
-            font=("goudy old style", 30),
-            bg="#184a45",
-            fg="white",
-            bd=3,
-            relief=RIDGE,
-        ).pack(side="top", fill="x", padx=10, pady=20)
+        # Add button
+        Button(self.root, text="ADD", command=self.add, font=Theme.FONT_GOUDY, bg="#4caf50", fg="white", cursor="hand2").place(x=360, y=170, width=150, height=30)
+        # Delete button
+        Button(self.root, text="Delete", command=self.delete, font=Theme.FONT_GOUDY, bg="red", fg="white", cursor="hand2").place(x=520, y=170, width=150, height=30)
 
-        Label(
-            self.root,
-            text="Enter Category Name",
-            font=("goudy old style", 30),
-            bg=Theme.BG_WHITE,
-        ).place(x=50, y=100)
-        Entry(
-            self.root,
-            textvariable=self.var_name,
-            bg=Theme.BG_ENTRY,
-            font=("goudy old style", 18),
-        ).place(x=50, y=170, width=300)
-
-        Button(
-            self.root,
-            text="ADD",
-            command=self.add,
-            font=Theme.FONT_GOUDY,
-            bg="#4caf50",
-            fg="white",
-            cursor="hand2",
-        ).place(x=360, y=170, width=150, height=30)
-        Button(
-            self.root,
-            text="Delete",
-            command=self.delete,
-            font=Theme.FONT_GOUDY,
-            bg="red",
-            fg="white",
-            cursor="hand2",
-        ).place(x=520, y=170, width=150, height=30)
-
+        # Columns
         cols = ("cid", "name")
+        # Headings
         headings = {"cid": "C ID", "name": "Name"}
         widths = {"cid": 90, "name": 100}
+        # Category table
         cat_frame, self.CategoryTable = scrolled_treeview(self.root, cols, headings, widths)
         cat_frame.place(x=700, y=100, width=380, height=100)
         self.CategoryTable.bind("<ButtonRelease-1>", self.get_data)
         self.show()
 
+        # Place optional image
         self._place_optional_image("cat.jpg", x=50, y=220)
         self._place_optional_image("category.jpg", x=580, y=220)
 
+    # Place optional image
     def _place_optional_image(self, filename, x, y):
         path = os.path.join(IMAGE_DIR, filename)
         if not os.path.isfile(path):
@@ -81,6 +55,7 @@ class categoryClass:
         lbl.image = photo
         lbl.place(x=x, y=y)
 
+    # Add category
     def add(self):
         ok, msg = category_service.add_category(self.var_name.get())
         if ok:
@@ -90,6 +65,7 @@ class categoryClass:
         else:
             messagebox.showerror("Error", msg, parent=self.root)
 
+    # Show categories
     def show(self):
         try:
             rows = category_service.fetch_all_categories()
@@ -99,17 +75,20 @@ class categoryClass:
         except Exception as ex:
             messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
 
+    # Clear category data
     def clear(self):
         self.var_name.set("")
         self.show()
 
+    # Get category data
     def get_data(self, ev):
         f = self.CategoryTable.focus()
         content = self.CategoryTable.item(f)
         row = content["values"]
         self.var_cat_id.set(row[0])
         self.var_name.set(row[1])
-
+        
+    # Delete category
     def delete(self):
         cid = self.var_cat_id.get()
         if not cid:
@@ -130,7 +109,6 @@ class categoryClass:
             self.var_name.set("")
         else:
             messagebox.showerror("Error", msg, parent=self.root)
-
 
 if __name__ == "__main__":
     root = Tk()

@@ -1,6 +1,7 @@
 from models.db import get_connection
 from utils.sql_helpers import employee_search_sql
 
+# All employee service functions
 __all__ = [
     "employee_search_sql",
     "fetch_all_employees",
@@ -11,7 +12,7 @@ __all__ = [
     "search_employees",
 ]
 
-
+# Fetch all employees
 def fetch_all_employees():
     con = get_connection()
     try:
@@ -22,6 +23,7 @@ def fetch_all_employees():
         con.close()
 
 
+# Add employee
 def add_employee(
     eid,
     name,
@@ -67,6 +69,7 @@ def add_employee(
         con.close()
 
 
+# Update employee
 def update_employee(
     eid,
     name,
@@ -112,6 +115,7 @@ def update_employee(
         con.close()
 
 
+# Check if employee exists
 def employee_exists(eid):
     if not eid:
         return False
@@ -124,8 +128,8 @@ def employee_exists(eid):
         con.close()
 
 
+# Delete employee row
 def delete_employee_row(eid):
-    """Delete row after UI confirmation; caller must validate eid is non-empty."""
     con = get_connection()
     try:
         cur = con.cursor()
@@ -138,6 +142,7 @@ def delete_employee_row(eid):
         con.close()
 
 
+# Search employees
 def search_employees(search_by, search_term):
     if search_by == "Select":
         return None, "Select Search By option"

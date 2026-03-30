@@ -13,7 +13,7 @@ from views.sales_view import salesClass
 from config import IMAGE_DIR
 from services import dashboard_service
 
-
+# Inventory Management System class
 class IMS:
     def __init__(self, root):
         self.root = root
@@ -154,7 +154,7 @@ def load_tk_image(path, size):
     img = Image.open(path).resize(size)
     return ImageTk.PhotoImage(img)
 
-
+# Main function
 if __name__ == "__main__":
     root = Tk()
     IMS(root)

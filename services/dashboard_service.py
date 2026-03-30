@@ -5,7 +5,7 @@ from models.db import get_connection
 
 __all__ = ["fetch_dashboard_counts"]
 
-
+# Fetch dashboard counts
 def fetch_dashboard_counts():
     con = get_connection()
     try:

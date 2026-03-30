@@ -7,7 +7,7 @@ __all__ = [
     "delete_category_row",
 ]
 
-
+# Fetch all categories
 def fetch_all_categories():
     con = get_connection()
     try:
@@ -17,7 +17,7 @@ def fetch_all_categories():
     finally:
         con.close()
 
-
+# Add category
 def add_category(name):
     if not name:
         return False, "Category Name must be required"
@@ -36,6 +36,7 @@ def add_category(name):
         con.close()
 
 
+# Check if category exists
 def category_exists(cid):
     if not cid:
         return False
@@ -48,6 +49,7 @@ def category_exists(cid):
         con.close()
 
 
+# Delete category row
 def delete_category_row(cid):
     con = get_connection()
     try:

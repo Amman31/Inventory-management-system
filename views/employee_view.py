@@ -43,27 +43,31 @@ class employeeClass:
             height=70,
         )
         cmb_search.current(0)
-
+        # Primary title bar
         primary_title_bar(
             self.root, "Employee Details", x=50, y=100, width=1000, font=Theme.FONT_GOUDY
         )
-
+        # Employee ID label
         Label(self.root, text="Emp ID", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=50, y=150
         )
+        # Gender label
         Label(self.root, text="Gender", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=350, y=150
         )
+        # Contact label
         Label(self.root, text="Contact", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=750, y=150
         )
 
+        # Employee ID entry
         Entry(
             self.root,
             textvariable=self.var_emp_id,
             font=Theme.FONT_GOUDY,
             bg=Theme.BG_ENTRY,
         ).place(x=150, y=150, width=180)
+        # Gender combobox
         cmb_gender = ttk.Combobox(
             self.root,
             textvariable=self.var_gender,
@@ -74,6 +78,7 @@ class employeeClass:
         )
         cmb_gender.place(x=500, y=150, width=180)
         cmb_gender.current(0)
+        # Contact entry
         Entry(
             self.root,
             textvariable=self.var_contact,
@@ -81,40 +86,52 @@ class employeeClass:
             bg=Theme.BG_ENTRY,
         ).place(x=850, y=150, width=180)
 
+        # Name label
         Label(self.root, text="Name", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(x=50, y=190)
+        # Date of Birth label
         Label(self.root, text="D.O.B.", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=350, y=190
         )
+        # Date of Joining label
         Label(self.root, text="D.O.J.", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=750, y=190
         )
 
+        # Name entry
         Entry(
             self.root, textvariable=self.var_name, font=Theme.FONT_GOUDY, bg=Theme.BG_ENTRY
         ).place(x=150, y=190, width=180)
+        # Date of Birth entry
         Entry(
             self.root, textvariable=self.var_dob, font=Theme.FONT_GOUDY, bg=Theme.BG_ENTRY
         ).place(x=500, y=190, width=180)
+        # Date of Joining entry
         Entry(
             self.root, textvariable=self.var_doj, font=Theme.FONT_GOUDY, bg=Theme.BG_ENTRY
         ).place(x=850, y=190, width=180)
 
+        # Email label
         Label(self.root, text="Email", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=50, y=230
         )
+        # Password label
         Label(self.root, text="Password", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=350, y=230
         )
+        # User Type label
         Label(self.root, text="User Type", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=750, y=230
         )
 
+        # Email entry
         Entry(
             self.root, textvariable=self.var_email, font=Theme.FONT_GOUDY, bg=Theme.BG_ENTRY
         ).place(x=150, y=230, width=180)
+        # Password entry
         Entry(
             self.root, textvariable=self.var_pass, font=Theme.FONT_GOUDY, bg=Theme.BG_ENTRY
         ).place(x=500, y=230, width=180)
+        # User Type combobox
         cmb_utype = ttk.Combobox(
             self.root,
             textvariable=self.var_utype,
@@ -126,13 +143,16 @@ class employeeClass:
         cmb_utype.place(x=850, y=230, width=180)
         cmb_utype.current(0)
 
+        # Address label
         Label(self.root, text="Address", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=50, y=270
         )
+        # Salary label
         Label(self.root, text="Salary", font=Theme.FONT_GOUDY, bg=Theme.BG_WHITE).place(
             x=500, y=270
         )
 
+        # Address textbox
         self.txt_address = Text(self.root, font=Theme.FONT_GOUDY, bg=Theme.BG_ENTRY)
         self.txt_address.place(x=150, y=270, width=300, height=60)
         Entry(
@@ -142,6 +162,7 @@ class employeeClass:
             bg=Theme.BG_ENTRY,
         ).place(x=600, y=270, width=180)
 
+        # Crud action buttons
         crud_action_buttons(
             self.root,
             {
@@ -158,6 +179,7 @@ class employeeClass:
             ],
         )
 
+        # Columns
         cols = (
             "eid",
             "name",
@@ -171,6 +193,7 @@ class employeeClass:
             "address",
             "salary",
         )
+        # Headings
         headings = {
             "eid": "EMP ID",
             "name": "Name",
@@ -186,7 +209,7 @@ class employeeClass:
         }
         widths = {c: 100 for c in cols}
         widths["eid"] = 90
-
+        # Employee table
         emp_frame, self.EmployeeTable = scrolled_treeview(
             self.root, cols, headings, widths
         )
@@ -194,6 +217,7 @@ class employeeClass:
         self.EmployeeTable.bind("<ButtonRelease-1>", self.get_data)
         self.show()
 
+    # Add employee
     def add(self):
         ok, msg = employee_service.add_employee(
             self.var_emp_id.get(),
@@ -215,6 +239,7 @@ class employeeClass:
         else:
             messagebox.showerror("Error", msg, parent=self.root)
 
+    # Show employees
     def show(self):
         try:
             rows = employee_service.fetch_all_employees()
@@ -224,6 +249,7 @@ class employeeClass:
         except Exception as ex:
             messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
 
+    # Get employee data
     def get_data(self, ev):
         f = self.EmployeeTable.focus()
         content = self.EmployeeTable.item(f)
@@ -241,6 +267,7 @@ class employeeClass:
         self.txt_address.insert(END, row[9])
         self.var_salary.set(row[10])
 
+    # Update employee
     def update(self):
         ok, msg = employee_service.update_employee(
             self.var_emp_id.get(),
@@ -261,6 +288,7 @@ class employeeClass:
         else:
             messagebox.showerror("Error", msg, parent=self.root)
 
+    # Delete employee
     def delete(self):
         eid = self.var_emp_id.get()
         if not eid:
@@ -280,6 +308,7 @@ class employeeClass:
         else:
             messagebox.showerror("Error", msg, parent=self.root)
 
+    # Clear employee data
     def clear(self):
         self.var_emp_id.set("")
         self.var_name.set("")
@@ -296,6 +325,7 @@ class employeeClass:
         self.var_searchtxt.set("")
         self.show()
 
+    # Search employees
     def search(self):
         rows, err = employee_service.search_employees(
             self.var_searchby.get(), self.var_searchtxt.get()
