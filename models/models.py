@@ -1,6 +1,5 @@
-"""Table schemas (DDL) applied when the database is initialized."""
-
-CREATE_STATEMENTS = [
+# Create database tables
+CREATE_TABLES = [
     "CREATE TABLE IF NOT EXISTS employee(eid INTEGER PRIMARY KEY AUTOINCREMENT,name text,email text,gender text,contact text,dob text,doj text,pass text,utype text,address text,salary text)",
     "CREATE TABLE IF NOT EXISTS supplier(invoice INTEGER PRIMARY KEY AUTOINCREMENT,name text,contact text,desc text)",
     "CREATE TABLE IF NOT EXISTS category(cid INTEGER PRIMARY KEY AUTOINCREMENT,name text)",

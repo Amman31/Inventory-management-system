@@ -1,9 +1,9 @@
-from tkinter import LabelFrame, RIDGE
+from tkinter import LabelFrame, RIDGE, ttk, Entry
 
 from components.theme import Theme
 from components.buttons import search_button
 
-
+# Search label frame
 def search_label_frame(
     parent,
     title,
@@ -23,13 +23,7 @@ def search_label_frame(
     btn_w=150,
     btn_h=30,
 ):
-    """
-    Standard 'Search' strip: LabelFrame + Combobox + Entry + Search button.
-    Returns (frame, combobox_widget). Caller must `from tkinter import ttk` and create Combobox.
-    """
-    from tkinter import ttk
-    from tkinter import Entry
-
+    # Search frame
     frame = LabelFrame(
         parent,
         text=title,
@@ -40,6 +34,7 @@ def search_label_frame(
     )
     frame.place(x=x, y=y, width=width, height=height)
 
+    # Search combobox
     cmb = ttk.Combobox(
         frame,
         textvariable=variable,
@@ -50,8 +45,10 @@ def search_label_frame(
     )
     cmb.place(x=10, y=10, width=combo_width)
 
+    # Search entry
     Entry(frame, textvariable=text_variable, font=Theme.FONT_GOUDY, bg=Theme.BG_ENTRY).place(
         x=entry_x, y=entry_y
     )
+    # Search button
     search_button(parent=frame, command=search_command, x=btn_x, y=btn_y, width=btn_w, height=btn_h)
     return frame, cmb
