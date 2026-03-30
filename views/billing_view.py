@@ -1,6 +1,9 @@
 import os
 import tempfile
 import time
+from config import IMAGE_DIR
+from services import billing_service
+from components.table import scrolled_treeview
 
 from tkinter import (Tk, Label,
     Button,
@@ -19,12 +22,9 @@ from tkinter import (Tk, Label,
     Y,
     VERTICAL,
     LEFT,
+    BOTTOM,
     messagebox,
 )
-
-from config import IMAGE_DIR
-from services import billing_service
-from components.table import scrolled_treeview
 
 # Billing class                 
 class billClass:

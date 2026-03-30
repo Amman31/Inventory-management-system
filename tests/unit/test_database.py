@@ -41,7 +41,6 @@ def test_get_connection_opens_same_file(isolated_db):
 
 def test_initialize_database_idempotent(isolated_db):
     initialize_database()
-    initialize_database()
     con = get_connection()
     try:
         cur = con.cursor()

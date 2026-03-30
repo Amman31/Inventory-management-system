@@ -1,7 +1,7 @@
 import os
 import time
 
-from tkinter import Tk, Label, Button, Frame, RIDGE, LEFT, TOP, X, BOTH, BOTTOM, Toplevel
+from tkinter import Tk, Label, Button, Frame, RIDGE, LEFT, TOP, X, BOTTOM, Toplevel
 from tkinter import messagebox
 from PIL import Image, ImageTk
 
@@ -10,6 +10,7 @@ from views.supplier_view import supplierClass
 from views.category_view import categoryClass
 from views.product_view import productClass
 from views.sales_view import salesClass
+from views.billing_view import billClass
 from config import IMAGE_DIR
 from services import dashboard_service
 
@@ -17,7 +18,7 @@ from services import dashboard_service
 class IMS:
     def __init__(self, root):
         self.root = root
-        self.root.geometry("1350x700+110+80")
+        self.root.geometry("1350x750+110+80")
         # Menu items
         self.menu = (
             ("Employee", self.employee),
@@ -25,6 +26,7 @@ class IMS:
             ("Category", self.category),
             ("Products", self.product),
             ("Sales", self.sales),
+            ("Billings", self.billings),
         )
         self.root.resizable(False, False)
         self.root.config(bg="white")
@@ -48,7 +50,7 @@ class IMS:
 
         # Left menu
         LeftMenu = Frame(self.root, bd=2, relief=RIDGE, bg="white")
-        LeftMenu.place(x=0, y=102, width=200, height=565)
+        LeftMenu.place(x=0, y=102, width=200, height=765)
 
         # Menu logo and text
         Label(LeftMenu, image=self.MenuLogo).pack(side=TOP, fill=X)
@@ -117,6 +119,11 @@ class IMS:
     def sales(self):
         self.new_win = Toplevel(self.root)
         salesClass(self.new_win)
+    
+    # Billings view
+    def billings(self):
+        self.new_win = Toplevel(self.root)
+        billClass(self.new_win)
 
     # Update content
     def update_content(self):

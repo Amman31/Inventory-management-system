@@ -2,7 +2,6 @@
 
 from models.db import initialize_database, get_connection
 
-
 def test_employee_insert_update_delete_flow(isolated_db):
     initialize_database()
     con = get_connection()
