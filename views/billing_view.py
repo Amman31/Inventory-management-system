@@ -62,15 +62,6 @@ class billClass:
             padx=20,
         ).place(x=0, y=0, relwidth=1, height=70)
 
-        # Logout button
-        Button(
-            self.root,
-            text="Logout",
-            font=("times new roman", 15, "bold"),
-            bg="yellow",
-            cursor="hand2",
-        ).place(x=1150, y=10, height=50, width=150)
-
         # Clock label
         self.lbl_clock = Label(
             self.root,
