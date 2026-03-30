@@ -12,9 +12,8 @@ __all__ = [
     "search_products",
 ]
 
-
+# Fetch category and supplier names
 def fetch_category_and_supplier_names():
-    """Returns (cat_list, sup_list) for comboboxes: ['Empty'] or ['Select', ...]."""
     cat_list = ["Empty"]
     sup_list = ["Empty"]
     con = get_connection()
@@ -38,7 +37,7 @@ def fetch_category_and_supplier_names():
     finally:
         con.close()
 
-
+# Fetch all products
 def fetch_all_products():
     con = get_connection()
     try:
@@ -48,7 +47,7 @@ def fetch_all_products():
     finally:
         con.close()
 
-
+# Add product
 def add_product(category, supplier, name, price, qty, status):
     if category in ("Select", "Empty") or supplier in ("Select", "Empty"):
         return False, "All fields are required"
@@ -69,7 +68,7 @@ def add_product(category, supplier, name, price, qty, status):
     finally:
         con.close()
 
-
+# Update product
 def update_product(pid, category, supplier, name, price, qty, status):
     if not pid:
         return False, "Please select product from list"
@@ -90,7 +89,7 @@ def update_product(pid, category, supplier, name, price, qty, status):
     finally:
         con.close()
 
-
+# Check if product exists
 def product_exists(pid):
     if not pid:
         return False
@@ -102,7 +101,7 @@ def product_exists(pid):
     finally:
         con.close()
 
-
+# Delete product row
 def delete_product_row(pid):
     con = get_connection()
     try:
@@ -115,7 +114,7 @@ def delete_product_row(pid):
     finally:
         con.close()
 
-
+# Search products
 def search_products(search_by, search_term):
     if search_by == "Select":
         return None, "Select Search By option"

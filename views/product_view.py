@@ -11,29 +11,42 @@ from components import (
     search_label_frame,
 )
 
-
+# Product class
 class productClass:
     def __init__(self, root):
         self.root = root
         configure_crud_window(self.root)
 
+        # Category variable
         self.var_cat = StringVar()
+        # Category list
         self.cat_list = []
         self.sup_list = []
+        # Product ID variable
         self.var_pid = StringVar()
+        # Supplier variable
         self.var_sup = StringVar()
+        # Name variable
         self.var_name = StringVar()
+        # Price variable
         self.var_price = StringVar()
+        # Quantity variable
         self.var_qty = StringVar()
+        # Status variable
         self.var_status = StringVar()
+        # Search by variable
         self.var_searchby = StringVar()
+        # Search text variable
         self.var_searchtxt = StringVar()
 
+        # Fetch category and supplier list
         self.fetch_cat_sup()
 
+        # Product frame
         product_Frame = Frame(self.root, bd=2, relief=RIDGE, bg=Theme.BG_WHITE)
         product_Frame.place(x=10, y=10, width=450, height=480)
 
+        # Category label
         Label(
             product_Frame,
             text="Manage Product Details",
@@ -45,22 +58,28 @@ class productClass:
         Label(product_Frame, text="Category", font=Theme.FONT_GOUDY_TITLE, bg=Theme.BG_WHITE).place(
             x=30, y=60
         )
+        # Supplier label
         Label(product_Frame, text="Supplier", font=Theme.FONT_GOUDY_TITLE, bg=Theme.BG_WHITE).place(
             x=30, y=110
         )
+        # Name label
         Label(product_Frame, text="Name", font=Theme.FONT_GOUDY_TITLE, bg=Theme.BG_WHITE).place(
             x=30, y=160
         )
+        # Price label
         Label(product_Frame, text="Price", font=Theme.FONT_GOUDY_TITLE, bg=Theme.BG_WHITE).place(
             x=30, y=210
         )
+        # Quantity label
         Label(product_Frame, text="Quantity", font=Theme.FONT_GOUDY_TITLE, bg=Theme.BG_WHITE).place(
             x=30, y=260
         )
+        # Status label
         Label(product_Frame, text="Status", font=Theme.FONT_GOUDY_TITLE, bg=Theme.BG_WHITE).place(
             x=30, y=310
         )
 
+        # Category combobox
         self.cmb_cat = ttk.Combobox(
             product_Frame,
             textvariable=self.var_cat,
@@ -72,6 +91,7 @@ class productClass:
         self.cmb_cat.place(x=150, y=60, width=200)
         self.cmb_cat.current(0)
 
+        # Supplier combobox
         self.cmb_sup = ttk.Combobox(
             product_Frame,
             textvariable=self.var_sup,
@@ -83,18 +103,21 @@ class productClass:
         self.cmb_sup.place(x=150, y=110, width=200)
         self.cmb_sup.current(0)
 
+        # Name entry
         Entry(
             product_Frame,
             textvariable=self.var_name,
             font=Theme.FONT_GOUDY,
             bg=Theme.BG_ENTRY,
         ).place(x=150, y=160, width=200)
+        # Price entry
         Entry(
             product_Frame,
             textvariable=self.var_price,
             font=Theme.FONT_GOUDY,
             bg=Theme.BG_ENTRY,
         ).place(x=150, y=210, width=200)
+        # Quantity entry
         Entry(
             product_Frame,
             textvariable=self.var_qty,
@@ -102,6 +125,7 @@ class productClass:
             bg=Theme.BG_ENTRY,
         ).place(x=150, y=260, width=200)
 
+        # Status combobox
         cmb_status = ttk.Combobox(
             product_Frame,
             textvariable=self.var_status,
@@ -113,6 +137,7 @@ class productClass:
         cmb_status.place(x=150, y=310, width=200)
         cmb_status.current(0)
 
+        # Crud action buttons
         crud_action_buttons(
             product_Frame,
             {
@@ -129,6 +154,7 @@ class productClass:
             ],
         )
 
+        # Search label frame
         _, cmb_search = search_label_frame(
             self.root,
             "Search Product",
@@ -144,7 +170,9 @@ class productClass:
         )
         cmb_search.current(0)
 
+        # Columns
         cols = ("pid", "Category", "Supplier", "name", "price", "qty", "status")
+        # Headings
         headings = {
             "pid": "P ID",
             "Category": "Category",
@@ -157,6 +185,7 @@ class productClass:
         widths = {c: 100 for c in cols}
         widths["pid"] = 90
 
+        # Product table
         product_frame, self.ProductTable = scrolled_treeview(
             self.root, cols, headings, widths
         )
@@ -167,6 +196,7 @@ class productClass:
         self.cmb_cat["values"] = self.cat_list
         self.cmb_sup["values"] = self.sup_list
 
+    # Fetch category and supplier list
     def fetch_cat_sup(self):
         try:
             self.cat_list, self.sup_list = product_service.fetch_category_and_supplier_names()
@@ -175,6 +205,7 @@ class productClass:
             self.sup_list = ["Empty"]
             messagebox.showerror("Error", str(ex), parent=self.root)
 
+    # Add product
     def add(self):
         ok, msg = product_service.add_product(
             self.var_cat.get(),
@@ -191,6 +222,7 @@ class productClass:
         else:
             messagebox.showerror("Error", msg, parent=self.root)
 
+    # Show products
     def show(self):
         try:
             rows = product_service.fetch_all_products()
@@ -200,6 +232,7 @@ class productClass:
         except Exception as ex:
             messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
 
+    # Get product data
     def get_data(self, ev):
         f = self.ProductTable.focus()
         content = self.ProductTable.item(f)
@@ -212,6 +245,7 @@ class productClass:
         self.var_qty.set(row[5])
         self.var_status.set(row[6])
 
+    # Update product
     def update(self):
         ok, msg = product_service.update_product(
             self.var_pid.get(),
@@ -228,6 +262,7 @@ class productClass:
         else:
             messagebox.showerror("Error", msg, parent=self.root)
 
+    # Delete product
     def delete(self):
         pid = self.var_pid.get()
         if not pid:
@@ -247,6 +282,7 @@ class productClass:
         else:
             messagebox.showerror("Error", msg, parent=self.root)
 
+    # Clear product data
     def clear(self):
         self.var_cat.set("Select")
         self.var_sup.set("Select")
@@ -259,6 +295,7 @@ class productClass:
         self.var_searchtxt.set("")
         self.show()
 
+    # Search products
     def search(self):
         rows, err = product_service.search_products(
             self.var_searchby.get(), self.var_searchtxt.get()

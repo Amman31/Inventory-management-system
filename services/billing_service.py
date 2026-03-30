@@ -20,7 +20,7 @@ __all__ = [
     "save_bill_file",
 ]
 
-
+# Fetch active products for table
 def fetch_active_products_for_table():
     con = get_connection()
     try:
@@ -34,7 +34,7 @@ def fetch_active_products_for_table():
     finally:
         con.close()
 
-
+# Search active products by name
 def search_active_products_by_name(name_pattern):
     if not name_pattern:
         return None, "Search input should be required"
@@ -54,7 +54,7 @@ def search_active_products_by_name(name_pattern):
     finally:
         con.close()
 
-
+# Validate cart add
 def validate_cart_add(pid, qty_str, stock_str):
     if not pid:
         return False, "Please select product from the list"
@@ -64,18 +64,18 @@ def validate_cart_add(pid, qty_str, stock_str):
         return False, "Invalid Quantity"
     return True, None
 
-
+# Find duplicate cart index
 def find_duplicate_cart_index(cart_list, pid):
     for index_, row in enumerate(cart_list):
         if str(pid) == str(row[0]):
             return index_
     return -1
 
-
+# Append cart row
 def append_cart_row(cart_list, cart_row):
     return cart_list + [cart_row]
 
-
+# Update cart after confirm
 def update_cart_after_confirm(cart_list, index_, new_qty_str):
     new_list = [list(r) for r in cart_list]
     if new_qty_str == "0":
@@ -84,7 +84,7 @@ def update_cart_after_confirm(cart_list, index_, new_qty_str):
         new_list[index_][3] = new_qty_str
     return new_list
 
-
+# Compute bill totals
 def compute_bill_totals(cart_list):
     bill_amnt = 0.0
     for row in cart_list:
@@ -93,11 +93,11 @@ def compute_bill_totals(cart_list):
     net_pay = bill_amnt - discount
     return bill_amnt, discount, net_pay
 
-
+# Generate invoice number
 def generate_invoice_number():
     return int(time.strftime("%H%M%S")) + int(time.strftime("%d%m%Y"))
 
-
+# Format bill top text
 def format_bill_top_text(cname, contact, invoice):
     return f"""
 \t\tXYZ-Inventory
@@ -111,7 +111,7 @@ def format_bill_top_text(cname, contact, invoice):
 {str("=" * 46)}
 """
 
-
+# Format bill bottom text
 def format_bill_bottom_text(bill_amnt, discount, net_pay):
     return f"""
 {str("=" * 46)}
@@ -121,7 +121,7 @@ def format_bill_bottom_text(bill_amnt, discount, net_pay):
 {str("=" * 46)}\n
 """
 
-
+# Format bill middle lines
 def format_bill_middle_lines(cart_list):
     """Returns list of text segments to append to bill body (inventory commit separate)."""
     segments = []
@@ -132,7 +132,7 @@ def format_bill_middle_lines(cart_list):
         segments.append("\n " + name + "\t\t\t" + str(qty) + "\tRs." + str(price))
     return segments
 
-
+# Commit cart to inventory      
 def commit_cart_to_inventory(cart_list):
     con = get_connection()
     try:
@@ -157,14 +157,14 @@ def commit_cart_to_inventory(cart_list):
     finally:
         con.close()
 
-
+# Save bill file
 def save_bill_file(invoice, text_body):
     bill_path = os.path.join(BILL_DIR, f"{str(invoice)}.txt")
     with open(bill_path, "w", encoding="utf-8") as fp:
         fp.write(text_body)
     return bill_path
 
-
+# Validate generate bill
 def validate_generate_bill(cname, contact, cart_list):
     if not cname or not contact:
         return False, "Customer Details are required"

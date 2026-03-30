@@ -9,7 +9,7 @@ __all__ = [
     "get_supplier_by_invoice",
 ]
 
-
+# Fetch all suppliers
 def fetch_all_suppliers():
     con = get_connection()
     try:
@@ -19,7 +19,7 @@ def fetch_all_suppliers():
     finally:
         con.close()
 
-
+# Add supplier
 def add_supplier(invoice, name, contact, desc):
     if not invoice:
         return False, "Invoice must be required"
@@ -40,7 +40,7 @@ def add_supplier(invoice, name, contact, desc):
     finally:
         con.close()
 
-
+# Update supplier
 def update_supplier(invoice, name, contact, desc):
     if not invoice:
         return False, "Invoice must be required"
@@ -61,7 +61,7 @@ def update_supplier(invoice, name, contact, desc):
     finally:
         con.close()
 
-
+# Check if supplier invoice exists
 def supplier_invoice_exists(invoice):
     if not invoice:
         return False
@@ -73,7 +73,7 @@ def supplier_invoice_exists(invoice):
     finally:
         con.close()
 
-
+# Delete supplier row
 def delete_supplier_row(invoice):
     con = get_connection()
     try:
@@ -86,7 +86,7 @@ def delete_supplier_row(invoice):
     finally:
         con.close()
 
-
+# Get supplier by invoice
 def get_supplier_by_invoice(invoice):
     if not invoice:
         return None, "Invoice No. should be required"

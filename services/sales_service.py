@@ -8,7 +8,7 @@ __all__ = [
     "read_bill_lines_by_invoice",
 ]
 
-
+# List bill display entries
 def list_bill_display_entries():
     """Returns (filenames_for_listbox, invoice_ids_without_extension)."""
     filenames = []
@@ -21,7 +21,7 @@ def list_bill_display_entries():
             invoice_ids.append(i.split(".")[0])
     return filenames, invoice_ids
 
-
+# Read bill lines by filename
 def read_bill_lines_by_filename(filename):
     file_path = os.path.join(BILL_DIR, filename)
     lines = []
@@ -30,7 +30,7 @@ def read_bill_lines_by_filename(filename):
             lines.append(line)
     return lines
 
-
+# Read bill lines by invoice id
 def read_bill_lines_by_invoice(invoice_id):
     file_path = os.path.join(BILL_DIR, f"{invoice_id}.txt")
     lines = []
@@ -39,6 +39,6 @@ def read_bill_lines_by_invoice(invoice_id):
             lines.append(line)
     return lines
 
-
+# Check if invoice exists
 def invoice_exists(invoice_id, known_invoice_ids):
     return invoice_id in known_invoice_ids

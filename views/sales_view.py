@@ -26,14 +26,18 @@ from services import sales_service
 from components import Theme, configure_crud_window
 
 
+# Sales class
 class salesClass:
     def __init__(self, root):
         self.root = root
         configure_crud_window(self.root)
 
+        # Invoice list
         self.blll_list = []
+        # Invoice variable
         self.var_invoice = StringVar()
 
+        # View customer bills label
         Label(
             self.root,
             text="View Customer Bills",
@@ -44,9 +48,11 @@ class salesClass:
             relief=RIDGE,
         ).pack(side=TOP, fill=X, padx=10, pady=20)
 
+        # Invoice no. label
         Label(self.root, text="Invoice No.", font=Theme.FONT_TIMES, bg=Theme.BG_WHITE).place(
             x=50, y=100
         )
+        # Invoice no. entry
         Entry(
             self.root,
             textvariable=self.var_invoice,
@@ -54,6 +60,7 @@ class salesClass:
             bg=Theme.BG_ENTRY,
         ).place(x=160, y=100, width=180, height=28)
 
+        # Search button
         Button(
             self.root,
             text="Search",
@@ -64,6 +71,7 @@ class salesClass:
             cursor="hand2",
         ).place(x=360, y=100, width=120, height=28)
 
+        # Clear button
         Button(
             self.root,
             text="Clear",
@@ -73,9 +81,11 @@ class salesClass:
             cursor="hand2",
         ).place(x=490, y=100, width=120, height=28)
 
+        # Sales frame
         sales_Frame = Frame(self.root, bd=3, relief=RIDGE)
         sales_Frame.place(x=50, y=140, width=200, height=330)
 
+        # Sales list
         scrolly = Scrollbar(sales_Frame, orient=VERTICAL)
         self.Sales_List = Listbox(
             sales_Frame,
@@ -88,9 +98,11 @@ class salesClass:
         self.Sales_List.pack(fill=BOTH, expand=1)
         self.Sales_List.bind("<ButtonRelease-1>", self.get_data)
 
+        # Bill frame
         bill_Frame = Frame(self.root, bd=3, relief=RIDGE)
         bill_Frame.place(x=280, y=140, width=410, height=330)
 
+        # Customer bill area label
         Label(
             bill_Frame,
             text="Customer Bill Area",
@@ -98,12 +110,14 @@ class salesClass:
             bg="orange",
         ).pack(side=TOP, fill=X)
 
+        # Customer bill area scrollbar
         scrolly2 = Scrollbar(bill_Frame, orient=VERTICAL)
         self.bill_area = Text(bill_Frame, bg=Theme.BG_ENTRY, yscrollcommand=scrolly2.set)
         scrolly2.pack(side=RIGHT, fill=Y)
         scrolly2.config(command=self.bill_area.yview)
         self.bill_area.pack(fill=BOTH, expand=1)
 
+        # Customer bill area image
         image_path = os.path.join(IMAGE_DIR, "cat2.jpg")
         if os.path.isfile(image_path):
             from PIL import Image, ImageTk
@@ -115,6 +129,7 @@ class salesClass:
 
         self.show()
 
+    # Show sales
     def show(self):
         self.blll_list.clear()
         self.Sales_List.delete(0, END)
@@ -123,6 +138,7 @@ class salesClass:
         for fn in filenames:
             self.Sales_List.insert(END, fn)
 
+    # Get sales data
     def get_data(self, ev):
         index_ = self.Sales_List.curselection()
         if not index_:
@@ -134,6 +150,7 @@ class salesClass:
         for line in sales_service.read_bill_lines_by_filename(file_name):
             self.bill_area.insert(END, line)
 
+    # Search sales
     def search(self):
         if self.var_invoice.get() == "":
             messagebox.showerror("Error", "Invoice no. should be required", parent=self.root)
@@ -144,10 +161,10 @@ class salesClass:
         else:
             messagebox.showerror("Error", "Invalid Invoice No.", parent=self.root)
 
+    # Clear sales
     def clear(self):
         self.show()
         self.bill_area.delete("1.0", END)
-
 
 if __name__ == "__main__":
     root = Tk()
