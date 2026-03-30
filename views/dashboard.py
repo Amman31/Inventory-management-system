@@ -18,7 +18,7 @@ from services import dashboard_service
 class IMS:
     def __init__(self, root):
         self.root = root
-        self.root.geometry("1350x750+110+80")
+        self.root.geometry("1350x750+110+20")
         # Menu items
         self.menu = (
             ("Employee", self.employee),
