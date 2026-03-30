@@ -1,5 +1,3 @@
-"""Integration: employee lifecycle operations (insert/update/delete)."""
-
 from models.db import get_connection, initialize_database
 
 

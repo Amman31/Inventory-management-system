@@ -1,5 +1,3 @@
-"""Unit tests: safe SQL helper builders."""
-
 from utils.sql_helpers import employee_search_sql, product_search_sql
 
 

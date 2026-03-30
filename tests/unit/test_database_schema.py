@@ -1,5 +1,3 @@
-"""Unit tests: schema initialization and DB creation."""
-
 import sqlite3
 
 from models.db import initialize_database

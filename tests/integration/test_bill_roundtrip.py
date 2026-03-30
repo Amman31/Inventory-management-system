@@ -1,9 +1,6 @@
-"""Integration: bill text files are written under configured BILL_DIR."""
-
 import os
 
 from config import BILL_DIR
-
 
 def test_write_and_read_bill_roundtrip(isolated_bill_dir):
     path = os.path.join(str(isolated_bill_dir), "999.txt")

@@ -1,5 +1,3 @@
-"""Unit tests: first-run admin bootstrap."""
-
 import sqlite3
 
 from models.db import get_connection, initialize_database
