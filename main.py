@@ -1,6 +1,8 @@
 from tkinter import Tk
-from app.dashboard import IMS
-from config.database import initialize_database
+
+from models.db import initialize_database
+from views.dashboard import IMS
+
 
 def main():
     # Step 1: Initialize DB automatically
@@ -10,6 +12,7 @@ def main():
     root = Tk()
     app = IMS(root)
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()

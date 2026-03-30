@@ -1,9 +1,8 @@
 from tkinter import Tk, Label, Entry, Text, StringVar, END
 from tkinter import ttk, messagebox
 
-from config.database import get_connection
-from app.sql_helpers import employee_search_sql
-from app.ui import (
+from services import employee_service
+from components import (
     Theme,
     configure_crud_window,
     crud_action_buttons,
@@ -196,57 +195,34 @@ class employeeClass:
         self.show()
 
     def add(self):
-        con = get_connection()
-        cur = con.cursor()
-        try:
-            if self.var_emp_id.get() == "":
-                messagebox.showerror("Error", "Employee ID must be required", parent=self.root)
-            else:
-                cur.execute("Select * from employee where eid=?", (self.var_emp_id.get(),))
-                row = cur.fetchone()
-                if row is not None:
-                    messagebox.showerror(
-                        "Error", "This Employee ID is already assigned", parent=self.root
-                    )
-                else:
-                    cur.execute(
-                        "insert into employee(eid,name,email,gender,contact,dob,doj,pass,utype,address,salary) values(?,?,?,?,?,?,?,?,?,?,?)",
-                        (
-                            self.var_emp_id.get(),
-                            self.var_name.get(),
-                            self.var_email.get(),
-                            self.var_gender.get(),
-                            self.var_contact.get(),
-                            self.var_dob.get(),
-                            self.var_doj.get(),
-                            self.var_pass.get(),
-                            self.var_utype.get(),
-                            self.txt_address.get("1.0", END),
-                            self.var_salary.get(),
-                        ),
-                    )
-                    con.commit()
-                    messagebox.showinfo("Success", "Employee Added Successfully", parent=self.root)
-                    self.clear()
-                    self.show()
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+        ok, msg = employee_service.add_employee(
+            self.var_emp_id.get(),
+            self.var_name.get(),
+            self.var_email.get(),
+            self.var_gender.get(),
+            self.var_contact.get(),
+            self.var_dob.get(),
+            self.var_doj.get(),
+            self.var_pass.get(),
+            self.var_utype.get(),
+            self.txt_address.get("1.0", END),
+            self.var_salary.get(),
+        )
+        if ok:
+            messagebox.showinfo("Success", msg, parent=self.root)
+            self.clear()
+            self.show()
+        else:
+            messagebox.showerror("Error", msg, parent=self.root)
 
     def show(self):
-        con = get_connection()
-        cur = con.cursor()
         try:
-            cur.execute("select * from employee")
-            rows = cur.fetchall()
+            rows = employee_service.fetch_all_employees()
             self.EmployeeTable.delete(*self.EmployeeTable.get_children())
             for row in rows:
                 self.EmployeeTable.insert("", END, values=row)
         except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+            messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
 
     def get_data(self, ev):
         f = self.EmployeeTable.focus()
@@ -266,69 +242,43 @@ class employeeClass:
         self.var_salary.set(row[10])
 
     def update(self):
-        con = get_connection()
-        cur = con.cursor()
-        try:
-            if self.var_emp_id.get() == "":
-                messagebox.showerror("Error", "Employee ID must be required", parent=self.root)
-            else:
-                cur.execute("Select * from employee where eid=?", (self.var_emp_id.get(),))
-                row = cur.fetchone()
-                if row is None:
-                    messagebox.showerror("Error", "Invalid Employee ID", parent=self.root)
-                else:
-                    cur.execute(
-                        "update employee set name=?,email=?,gender=?,contact=?,dob=?,doj=?,pass=?,utype=?,address=?,salary=? where eid=?",
-                        (
-                            self.var_name.get(),
-                            self.var_email.get(),
-                            self.var_gender.get(),
-                            self.var_contact.get(),
-                            self.var_dob.get(),
-                            self.var_doj.get(),
-                            self.var_pass.get(),
-                            self.var_utype.get(),
-                            self.txt_address.get("1.0", END),
-                            self.var_salary.get(),
-                            self.var_emp_id.get(),
-                        ),
-                    )
-                    con.commit()
-                    messagebox.showinfo(
-                        "Success", "Employee Updated Successfully", parent=self.root
-                    )
-                    self.show()
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+        ok, msg = employee_service.update_employee(
+            self.var_emp_id.get(),
+            self.var_name.get(),
+            self.var_email.get(),
+            self.var_gender.get(),
+            self.var_contact.get(),
+            self.var_dob.get(),
+            self.var_doj.get(),
+            self.var_pass.get(),
+            self.var_utype.get(),
+            self.txt_address.get("1.0", END),
+            self.var_salary.get(),
+        )
+        if ok:
+            messagebox.showinfo("Success", msg, parent=self.root)
+            self.show()
+        else:
+            messagebox.showerror("Error", msg, parent=self.root)
 
     def delete(self):
-        con = get_connection()
-        cur = con.cursor()
-        try:
-            if self.var_emp_id.get() == "":
-                messagebox.showerror("Error", "Employee ID must be required", parent=self.root)
-            else:
-                cur.execute("Select * from employee where eid=?", (self.var_emp_id.get(),))
-                row = cur.fetchone()
-                if row is None:
-                    messagebox.showerror("Error", "Invalid Employee ID", parent=self.root)
-                else:
-                    op = messagebox.askyesno(
-                        "Confirm", "Do you really want to delete?", parent=self.root
-                    )
-                    if op:
-                        cur.execute("delete from employee where eid=?", (self.var_emp_id.get(),))
-                        con.commit()
-                        messagebox.showinfo(
-                            "Delete", "Employee Deleted Successfully", parent=self.root
-                        )
-                        self.clear()
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+        eid = self.var_emp_id.get()
+        if not eid:
+            messagebox.showerror("Error", "Employee ID must be required", parent=self.root)
+            return
+        if not employee_service.employee_exists(eid):
+            messagebox.showerror("Error", "Invalid Employee ID", parent=self.root)
+            return
+        if not messagebox.askyesno(
+            "Confirm", "Do you really want to delete?", parent=self.root
+        ):
+            return
+        ok, msg = employee_service.delete_employee_row(eid)
+        if ok:
+            messagebox.showinfo("Delete", msg, parent=self.root)
+            self.clear()
+        else:
+            messagebox.showerror("Error", msg, parent=self.root)
 
     def clear(self):
         self.var_emp_id.set("")
@@ -347,33 +297,15 @@ class employeeClass:
         self.show()
 
     def search(self):
-        con = get_connection()
-        cur = con.cursor()
-        try:
-            if self.var_searchby.get() == "Select":
-                messagebox.showerror("Error", "Select Search By option", parent=self.root)
-            elif self.var_searchtxt.get() == "":
-                messagebox.showerror(
-                    "Error", "Search input should be required", parent=self.root
-                )
-            else:
-                sql, params = employee_search_sql(
-                    self.var_searchby.get(), self.var_searchtxt.get()
-                )
-                cur.execute(sql, params)
-                rows = cur.fetchall()
-                if len(rows) != 0:
-                    self.EmployeeTable.delete(*self.EmployeeTable.get_children())
-                    for row in rows:
-                        self.EmployeeTable.insert("", END, values=row)
-                else:
-                    messagebox.showerror("Error", "No record found!!!", parent=self.root)
-        except ValueError:
-            messagebox.showerror("Error", "Select Search By option", parent=self.root)
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+        rows, err = employee_service.search_employees(
+            self.var_searchby.get(), self.var_searchtxt.get()
+        )
+        if err:
+            messagebox.showerror("Error", err, parent=self.root)
+            return
+        self.EmployeeTable.delete(*self.EmployeeTable.get_children())
+        for row in rows:
+            self.EmployeeTable.insert("", END, values=row)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 import sqlite3
 
-from config.database import initialize_database, get_connection
+from models.db import initialize_database, get_connection
 
 
 def test_initialize_database_creates_tables(isolated_db):

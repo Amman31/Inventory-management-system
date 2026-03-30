@@ -4,9 +4,9 @@ from tkinter import Tk, Label, Entry, Button, StringVar, END, RIDGE, RAISED
 from tkinter import messagebox
 from PIL import Image, ImageTk
 
-from config.database import get_connection
-from config.settings import IMAGE_DIR
-from app.ui import Theme, configure_crud_window, scrolled_treeview
+from config import IMAGE_DIR
+from services import category_service
+from components import Theme, configure_crud_window, scrolled_treeview
 
 
 class categoryClass:
@@ -82,40 +82,22 @@ class categoryClass:
         lbl.place(x=x, y=y)
 
     def add(self):
-        con = get_connection()
-        cur = con.cursor()
-        try:
-            if self.var_name.get() == "":
-                messagebox.showerror("Error", "Category Name must be required", parent=self.root)
-            else:
-                cur.execute("Select * from category where name=?", (self.var_name.get(),))
-                row = cur.fetchone()
-                if row is not None:
-                    messagebox.showerror("Error", "Category already present", parent=self.root)
-                else:
-                    cur.execute("insert into category(name) values(?)", (self.var_name.get(),))
-                    con.commit()
-                    messagebox.showinfo("Success", "Category Added Successfully", parent=self.root)
-                    self.clear()
-                    self.show()
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+        ok, msg = category_service.add_category(self.var_name.get())
+        if ok:
+            messagebox.showinfo("Success", msg, parent=self.root)
+            self.clear()
+            self.show()
+        else:
+            messagebox.showerror("Error", msg, parent=self.root)
 
     def show(self):
-        con = get_connection()
-        cur = con.cursor()
         try:
-            cur.execute("select * from category")
-            rows = cur.fetchall()
+            rows = category_service.fetch_all_categories()
             self.CategoryTable.delete(*self.CategoryTable.get_children())
             for row in rows:
                 self.CategoryTable.insert("", END, values=row)
         except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+            messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
 
     def clear(self):
         self.var_name.set("")
@@ -129,33 +111,25 @@ class categoryClass:
         self.var_name.set(row[1])
 
     def delete(self):
-        con = get_connection()
-        cur = con.cursor()
-        try:
-            if self.var_cat_id.get() == "":
-                messagebox.showerror("Error", "Category name must be required", parent=self.root)
-            else:
-                cur.execute("Select * from category where cid=?", (self.var_cat_id.get(),))
-                row = cur.fetchone()
-                if row is None:
-                    messagebox.showerror("Error", "Invalid Category Name", parent=self.root)
-                else:
-                    op = messagebox.askyesno(
-                        "Confirm", "Do you really want to delete?", parent=self.root
-                    )
-                    if op:
-                        cur.execute("delete from category where cid=?", (self.var_cat_id.get(),))
-                        con.commit()
-                        messagebox.showinfo(
-                            "Delete", "Category Deleted Successfully", parent=self.root
-                        )
-                        self.clear()
-                        self.var_cat_id.set("")
-                        self.var_name.set("")
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+        cid = self.var_cat_id.get()
+        if not cid:
+            messagebox.showerror("Error", "Category name must be required", parent=self.root)
+            return
+        if not category_service.category_exists(cid):
+            messagebox.showerror("Error", "Invalid Category Name", parent=self.root)
+            return
+        if not messagebox.askyesno(
+            "Confirm", "Do you really want to delete?", parent=self.root
+        ):
+            return
+        ok, msg = category_service.delete_category_row(cid)
+        if ok:
+            messagebox.showinfo("Delete", msg, parent=self.root)
+            self.clear()
+            self.var_cat_id.set("")
+            self.var_name.set("")
+        else:
+            messagebox.showerror("Error", msg, parent=self.root)
 
 
 if __name__ == "__main__":

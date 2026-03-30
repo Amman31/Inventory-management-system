@@ -21,8 +21,9 @@ from tkinter import (
 )
 from tkinter import messagebox
 
-from config.settings import IMAGE_DIR, BILL_DIR
-from app.ui import Theme, configure_crud_window
+from config import IMAGE_DIR
+from services import sales_service
+from components import Theme, configure_crud_window
 
 
 class salesClass:
@@ -117,12 +118,10 @@ class salesClass:
     def show(self):
         self.blll_list.clear()
         self.Sales_List.delete(0, END)
-        if not os.path.isdir(BILL_DIR):
-            return
-        for i in os.listdir(BILL_DIR):
-            if i.endswith(".txt"):
-                self.Sales_List.insert(END, i)
-                self.blll_list.append(i.split(".")[0])
+        filenames, invoice_ids = sales_service.list_bill_display_entries()
+        self.blll_list = invoice_ids
+        for fn in filenames:
+            self.Sales_List.insert(END, fn)
 
     def get_data(self, ev):
         index_ = self.Sales_List.curselection()
@@ -132,20 +131,16 @@ class salesClass:
         file_name = self.Sales_List.get(index_)
         self.bill_area.delete("1.0", END)
 
-        file_path = os.path.join(BILL_DIR, file_name)
-        with open(file_path, "r", encoding="utf-8", errors="replace") as fp:
-            for line in fp:
-                self.bill_area.insert(END, line)
+        for line in sales_service.read_bill_lines_by_filename(file_name):
+            self.bill_area.insert(END, line)
 
     def search(self):
         if self.var_invoice.get() == "":
             messagebox.showerror("Error", "Invoice no. should be required", parent=self.root)
-        elif self.var_invoice.get() in self.blll_list:
-            file_path = os.path.join(BILL_DIR, f"{self.var_invoice.get()}.txt")
+        elif sales_service.invoice_exists(self.var_invoice.get(), self.blll_list):
             self.bill_area.delete("1.0", END)
-            with open(file_path, "r", encoding="utf-8", errors="replace") as fp:
-                for line in fp:
-                    self.bill_area.insert(END, line)
+            for line in sales_service.read_bill_lines_by_invoice(self.var_invoice.get()):
+                self.bill_area.insert(END, line)
         else:
             messagebox.showerror("Error", "Invalid Invoice No.", parent=self.root)
 

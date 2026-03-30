@@ -1,6 +1,6 @@
 """Integration: database operations across multiple statements (employee lifecycle)."""
 
-from config.database import initialize_database, get_connection
+from models.db import initialize_database, get_connection
 
 
 def test_employee_insert_update_delete_flow(isolated_db):

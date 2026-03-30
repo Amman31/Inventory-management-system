@@ -2,7 +2,7 @@
 
 import os
 
-from config.settings import BILL_DIR
+from config import BILL_DIR
 
 
 def test_bill_dir_exists_after_settings_import():

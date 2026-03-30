@@ -5,7 +5,7 @@ Regression tests: lock in fixes for previously fragile behavior.
 - Employee/product search must use bound parameters (no string-concat SQL).
 """
 
-from app.sql_helpers import employee_search_sql
+from utils.sql_helpers import employee_search_sql
 
 
 def test_employee_search_uses_bound_parameter_not_concat():

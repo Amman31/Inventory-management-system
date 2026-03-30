@@ -2,7 +2,7 @@
 
 import pytest
 
-from app.sql_helpers import (
+from utils.sql_helpers import (
     employee_search_sql,
     product_search_sql,
     EMPLOYEE_SEARCH_COLUMNS,

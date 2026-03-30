@@ -1,7 +1,7 @@
 from tkinter import LabelFrame, RIDGE
 
-from app.ui.theme import Theme
-from app.ui.buttons import search_button
+from components.theme import Theme
+from components.buttons import search_button
 
 
 def search_label_frame(

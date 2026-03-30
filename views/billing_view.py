@@ -22,9 +22,9 @@ from tkinter import (Tk, Label,
     messagebox,
 )
 
-from config.database import get_connection
-from config.settings import IMAGE_DIR, BILL_DIR
-from app.ui.tables import scrolled_treeview
+from config import IMAGE_DIR
+from services import billing_service
+from components.table import scrolled_treeview
 
 
 class billClass:
@@ -444,45 +444,22 @@ class billClass:
         self.var_cal_input.set(str(eval(result)))
 
     def show(self):
-        con = get_connection()
-        cur = con.cursor()
         try:
-            cur.execute(
-                "select pid,name,price,qty,status from product where status='Active'"
-            )
-            rows = cur.fetchall()
+            rows = billing_service.fetch_active_products_for_table()
             self.product_Table.delete(*self.product_Table.get_children())
             for row in rows:
                 self.product_Table.insert("", END, values=row)
         except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+            messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
 
     def search(self):
-        con = get_connection()
-        cur = con.cursor()
-        try:
-            if self.var_search.get() == "":
-                messagebox.showerror(
-                    "Error", "Search input should be required", parent=self.root
-                )
-            else:
-                cur.execute(
-                    "select pid,name,price,qty,status from product where name LIKE ?",
-                    (f"%{self.var_search.get()}%",),
-                )
-                rows = cur.fetchall()
-                if len(rows) != 0:
-                    self.product_Table.delete(*self.product_Table.get_children())
-                    for row in rows:
-                        self.product_Table.insert("", END, values=row)
-                else:
-                    messagebox.showerror("Error", "No record found!!!", parent=self.root)
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}")
-        finally:
-            con.close()
+        rows, err = billing_service.search_active_products_by_name(self.var_search.get())
+        if err:
+            messagebox.showerror("Error", err, parent=self.root)
+            return
+        self.product_Table.delete(*self.product_Table.get_children())
+        for row in rows:
+            self.product_Table.insert("", END, values=row)
 
     def get_data(self, ev):
         f = self.product_Table.focus()
@@ -513,53 +490,40 @@ class billClass:
             self.var_stock.set(stock)
 
     def add_update_cart(self):
-        if self.var_pid.get() == "":
-            messagebox.showerror(
-                "Error", "Please select product from the list", parent=self.root
+        ok, msg = billing_service.validate_cart_add(
+            self.var_pid.get(), self.var_qty.get(), self.var_stock.get()
+        )
+        if not ok:
+            messagebox.showerror("Error", msg, parent=self.root)
+            return
+        price_cal = self.var_price.get()
+        cart_data = [
+            self.var_pid.get(),
+            self.var_pname.get(),
+            price_cal,
+            self.var_qty.get(),
+            self.var_stock.get(),
+        ]
+        idx = billing_service.find_duplicate_cart_index(self.cart_list, self.var_pid.get())
+        if idx >= 0:
+            if not messagebox.askyesno(
+                "Confirm",
+                "Product already present\nDo you want to Update|Remove from the Cart List",
+                parent=self.root,
+            ):
+                return
+            self.cart_list = billing_service.update_cart_after_confirm(
+                self.cart_list, idx, self.var_qty.get()
             )
-        elif self.var_qty.get() == "":
-            messagebox.showerror("Error", "Quantity is required", parent=self.root)
-        elif int(self.var_qty.get()) > int(self.var_stock.get()):
-            messagebox.showerror("Error", "Invalid Quantity", parent=self.root)
         else:
-            price_cal = self.var_price.get()
-            cart_data = [
-                self.var_pid.get(),
-                self.var_pname.get(),
-                price_cal,
-                self.var_qty.get(),
-                self.var_stock.get(),
-            ]
-            present = "no"
-            index_ = 0
-            for row in self.cart_list:
-                if self.var_pid.get() == row[0]:
-                    present = "yes"
-                    break
-                index_ += 1
-            if present == "yes":
-                op = messagebox.askyesno(
-                    "Confirm",
-                    "Product already present\nDo you want to Update|Remove from the Cart List",
-                    parent=self.root,
-                )
-                if op:
-                    if self.var_qty.get() == "0":
-                        self.cart_list.pop(index_)
-                    else:
-                        self.cart_list[index_][3] = self.var_qty.get()
-            else:
-                self.cart_list.append(cart_data)
-            self.show_cart()
-            self.bill_update()
+            self.cart_list = billing_service.append_cart_row(self.cart_list, cart_data)
+        self.show_cart()
+        self.bill_update()
 
     def bill_update(self):
-        self.bill_amnt = 0
-        self.net_pay = 0
-        for row in self.cart_list:
-            self.bill_amnt = self.bill_amnt + (float(row[2]) * int(row[3]))
-        self.discount = (self.bill_amnt * 5) / 100
-        self.net_pay = self.bill_amnt - self.discount
+        self.bill_amnt, self.discount, self.net_pay = billing_service.compute_bill_totals(
+            self.cart_list
+        )
         self.lbl_amnt.config(text=f"Bill Amnt\n{str(self.bill_amnt)}")
         self.lbl_net_pay.config(text=f"Net Pay\n{str(self.net_pay)}")
         self.cartTitle.config(
@@ -575,73 +539,34 @@ class billClass:
             messagebox.showerror("Error", f"Error due to : {str(ex)}")
 
     def generate_bill(self):
-        if self.var_cname.get() == "" or self.var_contact.get() == "":
-            messagebox.showerror("Error", "Customer Details are required", parent=self.root)
-        elif len(self.cart_list) == 0:
-            messagebox.showerror("Error", "Please Add product to the Cart!!!", parent=self.root)
-        else:
-            self.bill_top()
-            self.bill_middle()
-            self.bill_bottom()
-
-            bill_path = os.path.join(BILL_DIR, f"{str(self.invoice)}.txt")
-            with open(bill_path, "w", encoding="utf-8") as fp:
-                fp.write(self.txt_bill_area.get("1.0", END))
-            messagebox.showinfo("Saved", "Bill has been generated", parent=self.root)
-            self.chk_print = 1
-
-    def bill_top(self):
-        self.invoice = int(time.strftime("%H%M%S")) + int(time.strftime("%d%m%Y"))
-        bill_top_temp = f"""
-\t\tXYZ-Inventory
-\t Phone No. 9899459288 , Delhi-110053
-{str("=" * 46)}
- Customer Name: {self.var_cname.get()}
- Ph. no. : {self.var_contact.get()}
- Bill No. {str(self.invoice)}\t\t\tDate: {str(time.strftime("%d/%m/%Y"))}
-{str("=" * 46)}
- Product Name\t\t\tQTY\tPrice
-{str("=" * 46)}
-"""
+        ok, msg = billing_service.validate_generate_bill(
+            self.var_cname.get(), self.var_contact.get(), self.cart_list
+        )
+        if not ok:
+            messagebox.showerror("Error", msg, parent=self.root)
+            return
+        self.invoice = billing_service.generate_invoice_number()
+        top = billing_service.format_bill_top_text(
+            self.var_cname.get(), self.var_contact.get(), self.invoice
+        )
         self.txt_bill_area.delete("1.0", END)
-        self.txt_bill_area.insert("1.0", bill_top_temp)
-
-    def bill_bottom(self):
-        bill_bottom_temp = f"""
-{str("=" * 46)}
- Bill Amount\t\t\t\tRs.{self.bill_amnt}
- Discount\t\t\t\tRs.{self.discount}
- Net Pay\t\t\t\tRs.{self.net_pay}
-{str("=" * 46)}\n
-"""
-        self.txt_bill_area.insert(END, bill_bottom_temp)
-
-    def bill_middle(self):
-        con = get_connection()
-        cur = con.cursor()
-        try:
-            for row in self.cart_list:
-                pid = row[0]
-                name = row[1]
-                qty = int(row[4]) - int(row[3])
-                if int(row[3]) == int(row[4]):
-                    status = "Inactive"
-                else:
-                    status = "Active"
-                price = float(row[2]) * int(row[3])
-                price = str(price)
-                self.txt_bill_area.insert(
-                    END, "\n " + name + "\t\t\t" + row[3] + "\tRs." + price
-                )
-                cur.execute(
-                    "update product set qty=?,status=? where pid=?",
-                    (qty, status, pid),
-                )
-                con.commit()
-        except Exception as ex:
-            messagebox.showerror("Error", f"Error due to : {str(ex)}", parent=self.root)
-        finally:
-            con.close()
+        self.txt_bill_area.insert("1.0", top)
+        for seg in billing_service.format_bill_middle_lines(self.cart_list):
+            self.txt_bill_area.insert(END, seg)
+        ok_db, err = billing_service.commit_cart_to_inventory(self.cart_list)
+        if not ok_db:
+            messagebox.showerror("Error", f"Error due to : {err}", parent=self.root)
+            return
+        self.bill_amnt, self.discount, self.net_pay = billing_service.compute_bill_totals(
+            self.cart_list
+        )
+        bottom = billing_service.format_bill_bottom_text(
+            self.bill_amnt, self.discount, self.net_pay
+        )
+        self.txt_bill_area.insert(END, bottom)
+        billing_service.save_bill_file(self.invoice, self.txt_bill_area.get("1.0", END))
+        messagebox.showinfo("Saved", "Bill has been generated", parent=self.root)
+        self.chk_print = 1
         self.show()
 
     def clear_cart(self):

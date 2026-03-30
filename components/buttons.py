@@ -1,6 +1,6 @@
 from tkinter import Button, Label
 
-from app.ui.theme import Theme
+from components.theme import Theme
 
 
 def search_button(parent, command, x, y, width=150, height=30):
@@ -16,10 +16,12 @@ def search_button(parent, command, x, y, width=150, height=30):
     btn.place(x=x, y=y, width=width, height=height)
     return btn
 
+
 def dashboard_menu_button(parent, text, font=None, bg="#4d636d", fg="white"):
     lbl = Label(parent, text=text, font=font or ("times new roman", 12), bg=bg, fg=fg)
     lbl.pack(side="bottom", fill="x")
     return lbl
+
 
 def crud_action_buttons(parent, commands, positions):
     """
