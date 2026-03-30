@@ -16,11 +16,16 @@ from services import dashboard_service
 
 # Inventory Management System class
 class IMS:
-    def __init__(self, root):
+    def __init__(self, root, user_role: str = "employee", on_logout=None):
         self.root = root
+        self.user_role = (user_role or "").strip().lower()
+        self.on_logout = on_logout
         self.root.geometry("1350x750+110+20")
+
+        self._child_windows = []
+
         # Menu items
-        self.menu = (
+        self._menu_all = (
             ("Employee", self.employee),
             ("Supplier", self.supplier),
             ("Category", self.category),
@@ -28,6 +33,13 @@ class IMS:
             ("Sales", self.sales),
             ("Billings", self.billings),
         )
+        self.menu = self._menu_all
+        if self.user_role != "admin":
+            # Employees can access only Sales + Billings.
+            self.menu = (
+                ("Sales", self.sales),
+                ("Billings", self.billings),
+            )
         self.root.resizable(False, False)
         self.root.config(bg="white")
 
@@ -38,7 +50,14 @@ class IMS:
         title.place(x=0, y=0, relwidth=1, height=70)
 
         # Logout button
-        Button(self.root, text="Logout", font=("times new roman", 15, "bold"), bg="yellow", cursor="hand2").place(x=1150, y=10, height=50, width=150)
+        Button(
+            self.root,
+            text="Logout",
+            font=("times new roman", 15, "bold"),
+            bg="yellow",
+            cursor="hand2",
+            command=self.logout,
+        ).place(x=1150, y=10, height=50, width=150)
 
         # Clock label
         self.lbl_clock = Label(self.root, text="Welcome to Inventory Management System\t\t Date: DD:MM:YYYY\t\t Time: HH:MM:SS", font=("times new roman", 15), bg="#4d636d", fg="white")
@@ -63,7 +82,7 @@ class IMS:
         self.icon_side = PhotoImageSafe(self.root, side_icon)
 
         # Menu buttons
-        for text, cmd in self.menu: 
+        for text, cmd in self.menu:
             Button(LeftMenu, text=text, command=cmd, image=self.icon_side, compound=LEFT, padx=5, anchor="w", font=("times new roman", 20, "bold"), bg="white", bd=3, cursor="hand2").pack(side=TOP, fill=X)
 
         # Exit button
@@ -98,32 +117,49 @@ class IMS:
     # Employee view
     def employee(self):
         self.new_win = Toplevel(self.root)
+        self._child_windows.append(self.new_win)
         employeeClass(self.new_win)
 
     # Supplier view
     def supplier(self):
         self.new_win = Toplevel(self.root)
+        self._child_windows.append(self.new_win)
         supplierClass(self.new_win)
 
     # Category view
     def category(self):
         self.new_win = Toplevel(self.root)
+        self._child_windows.append(self.new_win)
         categoryClass(self.new_win)
 
     # Product view
     def product(self):
         self.new_win = Toplevel(self.root)
+        self._child_windows.append(self.new_win)
         productClass(self.new_win)
 
     # Sales view
     def sales(self):
         self.new_win = Toplevel(self.root)
+        self._child_windows.append(self.new_win)
         salesClass(self.new_win)
     
     # Billings view
     def billings(self):
         self.new_win = Toplevel(self.root)
+        self._child_windows.append(self.new_win)
         billClass(self.new_win)
+
+    def logout(self):
+        # Close any open feature windows.
+        for w in self._child_windows:
+            try:
+                w.destroy()
+            except Exception:
+                pass
+        self._child_windows = []
+        if self.on_logout:
+            self.on_logout()
 
     # Update content
     def update_content(self):
@@ -164,5 +200,5 @@ def load_tk_image(path, size):
 # Main function
 if __name__ == "__main__":
     root = Tk()
-    IMS(root)
+    IMS(root, user_role="admin")
     root.mainloop()
