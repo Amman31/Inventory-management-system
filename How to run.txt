@@ -1,0 +1,8 @@
+1. run -> python -m venv venv
+
+This creates a virtual enviroment
+
+2. THen in windwos -> venv/Scripts/activate
+in linux -> source venv/bin/activate
+
+3. Start the program using -> python main.py or python3 main.py
